@@ -32,22 +32,24 @@ source ~/.bashrc
 
 ### Usage with Alias
 ```bash
-# Now use 'shadow' from anywhere
-shadow -g "Feature Request Name"  # Generate branch name
-shadow -f "multi\nline text"      # Flatten text
-shadow -e "hello world"           # Base64 encode
-shadow -u "test@example.com"      # URL encode
-shadow -r script.py               # Run file
+# Now use 'ms' from anywhere  
+ms -g "Feature Request Name"  # Generate branch name (auto-copied!)
+ms -f "multi\nline text"      # Flatten text
+ms -e "hello world"           # Base64 encode
+ms -u "test@example.com"      # URL encode
+ms -r script.py               # Run file
 ```
 
 ## 🛠️ Available Tools
 
 ### 🌿 Branch Name Generator (`-g, --generate-branch`)
-Convert strings to git-friendly branch names
+Convert strings to git-friendly branch names with **automatic clipboard copy**
 ```bash
-shadow -g "Feature Request Name"
-# Output: feature-request-name
+ms -g "Feature Request Name"
+# Output: feature-request-name (copied to clipboard)
 ```
+
+✨ **Auto-clipboard**: The generated branch name is automatically copied to your clipboard for instant use!
 
 ### 📝 Text Flattener (`-f, --flatten`)  
 Remove newlines from text input
@@ -180,6 +182,7 @@ cargo build --release
 
 - `clap` - Command line argument parsing with derive features
 - `colored` - Terminal color output for file runner
+- `arboard` - Cross-platform clipboard access for auto-copy feature
 
 ## 🔧 Legacy Shell Scripts
 
