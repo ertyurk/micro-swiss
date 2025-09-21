@@ -19,6 +19,7 @@ impl ToolModule for RunFileModule {
                 .long("run")
                 .value_name("FILE")
                 .help("Run file based on extension")
+                .long_help("Execute a file using the appropriate interpreter based on its extension. Supports: .py (uv run), .js (node), .ts (deno), .go (go run), .mojo/🔥 (mojo). Shows execution time and handles exit codes properly.")
         )
         .arg(
             Arg::new("args")

@@ -15,14 +15,16 @@ impl ToolModule for Base64EncodeModule {
                 .short('e')
                 .long("encode")
                 .value_name("STRING")
-                .help("Encode string to base64"),
+                .help("Encode string to base64")
+                .long_help("Encode a UTF-8 string to base64 format. Handles unicode characters, special characters, and binary data correctly."),
         )
         .arg(
             Arg::new("decode")
                 .short('d')
                 .long("decode")
                 .value_name("STRING")
-                .help("Decode base64 string"),
+                .help("Decode base64 string")
+                .long_help("Decode a base64-encoded string back to UTF-8. Automatically handles whitespace in input and provides detailed error messages for invalid base64 data."),
         )
     }
 

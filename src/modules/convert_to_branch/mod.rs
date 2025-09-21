@@ -16,7 +16,8 @@ impl ToolModule for ConvertToBranchModule {
                 .short('g')
                 .long("generate-branch")
                 .value_name("STRING")
-                .help("Convert string to branch-friendly format"),
+                .help("Convert string to Git branch-friendly format (auto-copied to clipboard)")
+                .long_help("Convert any string to a Git branch-friendly format by converting to lowercase, replacing non-alphanumeric characters with dashes, collapsing multiple dashes, and removing leading/trailing dashes. Perfect for creating branch names from issue titles or feature descriptions. Result is automatically copied to the clipboard."),
         )
     }
 

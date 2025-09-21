@@ -16,12 +16,14 @@ impl ToolModule for UrlEncodeModule {
                 .long("url-encode")
                 .value_name("STRING")
                 .help("URL encode a string")
+                .long_help("URL encode a string for safe use in URLs. Converts spaces to '+' and special characters to percent-encoded format (%XX). Properly handles UTF-8 multi-byte characters."),
         )
         .arg(
             Arg::new("url-decode")
                 .long("url-decode")
                 .value_name("STRING")
                 .help("URL decode a string")
+                .long_help("URL decode a percent-encoded string back to its original form. Converts '+' to spaces and %XX sequences back to their original characters. Handles UTF-8 sequences correctly."),
         )
     }
 
@@ -32,7 +34,12 @@ impl ToolModule for UrlEncodeModule {
         } else if let Some(text) = matches.get_one::<String>("url-decode") {
             match url_decode(text) {
                 Ok(decoded) => println!("{}", decoded),
-                Err(e) => return Err(Box::new(std::io::Error::new(std::io::ErrorKind::InvalidInput, e))),
+                Err(e) => {
+                    return Err(Box::new(std::io::Error::new(
+                        std::io::ErrorKind::InvalidInput,
+                        e,
+                    )))
+                }
             }
         }
         Ok(())
@@ -42,12 +49,12 @@ impl ToolModule for UrlEncodeModule {
 pub fn url_encode(input: &str) -> String {
     input
         .bytes()
-        .map(|b| {
-            match b {
-                b'A'..=b'Z' | b'a'..=b'z' | b'0'..=b'9' | b'-' | b'_' | b'.' | b'~' => (b as char).to_string(),
-                b' ' => "+".to_string(),
-                _ => format!("%{:02X}", b),
+        .map(|b| match b {
+            b'A'..=b'Z' | b'a'..=b'z' | b'0'..=b'9' | b'-' | b'_' | b'.' | b'~' => {
+                (b as char).to_string()
             }
+            b' ' => "+".to_string(),
+            _ => format!("%{:02X}", b),
         })
         .collect()
 }
@@ -55,20 +62,29 @@ pub fn url_encode(input: &str) -> String {
 pub fn url_decode(input: &str) -> Result<String, String> {
     let mut result = Vec::new();
     let mut chars = input.chars().peekable();
-    
+
     while let Some(c) = chars.next() {
         match c {
             '+' => result.push(b' '),
             '%' => {
                 // Get the next two characters for hex decoding
-                let hex1 = chars.next().ok_or("Incomplete percent encoding: missing first hex digit")?;
-                let hex2 = chars.next().ok_or("Incomplete percent encoding: missing second hex digit")?;
-                
+                let hex1 = chars
+                    .next()
+                    .ok_or("Incomplete percent encoding: missing first hex digit")?;
+                let hex2 = chars
+                    .next()
+                    .ok_or("Incomplete percent encoding: missing second hex digit")?;
+
                 // Parse hex digits
                 let hex_str = format!("{}{}", hex1, hex2);
                 match u8::from_str_radix(&hex_str, 16) {
                     Ok(byte) => result.push(byte),
-                    Err(_) => return Err(format!("Invalid hex digits in percent encoding: {}", hex_str)),
+                    Err(_) => {
+                        return Err(format!(
+                            "Invalid hex digits in percent encoding: {}",
+                            hex_str
+                        ))
+                    }
                 }
             }
             _ => {
@@ -79,7 +95,7 @@ pub fn url_decode(input: &str) -> Result<String, String> {
             }
         }
     }
-    
+
     String::from_utf8(result).map_err(|e| format!("Invalid UTF-8 sequence: {}", e))
 }
 
@@ -100,7 +116,10 @@ mod tests {
 
     #[test]
     fn test_url_encode_unreserved_chars() {
-        assert_eq!(url_encode("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_.~"), "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_.~");
+        assert_eq!(
+            url_encode("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_.~"),
+            "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_.~"
+        );
     }
 
     #[test]
@@ -125,7 +144,10 @@ mod tests {
 
     #[test]
     fn test_url_encode_mixed_content() {
-        assert_eq!(url_encode("user@domain.com?param=value&other=test"), "user%40domain.com%3Fparam%3Dvalue%26other%3Dtest");
+        assert_eq!(
+            url_encode("user@domain.com?param=value&other=test"),
+            "user%40domain.com%3Fparam%3Dvalue%26other%3Dtest"
+        );
     }
 
     #[test]
@@ -173,7 +195,10 @@ mod tests {
     #[test]
     fn test_url_decode_basic() {
         assert_eq!(url_decode("hello+world").unwrap(), "hello world");
-        assert_eq!(url_decode("test%40example.com").unwrap(), "test@example.com");
+        assert_eq!(
+            url_decode("test%40example.com").unwrap(),
+            "test@example.com"
+        );
     }
 
     #[test]
@@ -190,7 +215,10 @@ mod tests {
 
     #[test]
     fn test_url_decode_special_characters() {
-        assert_eq!(url_decode("%21%40%23%24%25%5E%26%2A%28%29").unwrap(), "!@#$%^&*()");
+        assert_eq!(
+            url_decode("%21%40%23%24%25%5E%26%2A%28%29").unwrap(),
+            "!@#$%^&*()"
+        );
         assert_eq!(url_decode("%2B%3D%3F%26").unwrap(), "+=?&");
     }
 
@@ -202,7 +230,10 @@ mod tests {
 
     #[test]
     fn test_url_decode_mixed_content() {
-        assert_eq!(url_decode("user%40domain.com%3Fparam%3Dvalue%26other%3Dtest").unwrap(), "user@domain.com?param=value&other=test");
+        assert_eq!(
+            url_decode("user%40domain.com%3Fparam%3Dvalue%26other%3Dtest").unwrap(),
+            "user@domain.com?param=value&other=test"
+        );
     }
 
     #[test]
@@ -230,7 +261,10 @@ mod tests {
     #[test]
     fn test_url_decode_path_like() {
         assert_eq!(url_decode("%2Fpath%2Fto%2Ffile").unwrap(), "/path/to/file");
-        assert_eq!(url_decode("..%2Frelative%2Fpath").unwrap(), "../relative/path");
+        assert_eq!(
+            url_decode("..%2Frelative%2Fpath").unwrap(),
+            "../relative/path"
+        );
     }
 
     #[test]

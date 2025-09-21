@@ -17,6 +17,7 @@ impl ToolModule for FlattenTextModule {
                 .long("flatten")
                 .value_name("TEXT")
                 .help("Remove newlines from text (or read from stdin)")
+                .long_help("Remove all newline characters from text, useful for converting multi-line text to single line format. If no text is provided as an argument, reads from stdin. Preserves all other whitespace characters (spaces, tabs).")
                 .num_args(0..=1)
         )
     }
