@@ -18,3 +18,5 @@ chrono = "0.4.42"
 md5 = "0.8.0"
 sha2 = "0.10.9"
 qrcode = "0.14.1"
+regex = "1.11.2"
+uuid = { version = "1.18.1", features = ["v4", "v7"] }

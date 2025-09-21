@@ -13,7 +13,6 @@ impl ToolModule for FlattenTextModule {
     fn configure_args(&self, cmd: Command) -> Command {
         cmd.arg(
             Arg::new("flatten")
-                .short('f')
                 .long("flatten")
                 .value_name("TEXT")
                 .help("Remove newlines from text (or read from stdin)")
@@ -79,7 +78,10 @@ mod tests {
 
     #[test]
     fn test_flatten_mixed_line_endings() {
-        assert_eq!(flatten_text("line1\nline2\r\nline3\rline4"), "line1line2\rline3\rline4");
+        assert_eq!(
+            flatten_text("line1\nline2\r\nline3\rline4"),
+            "line1line2\rline3\rline4"
+        );
     }
 
     #[test]
@@ -96,7 +98,10 @@ mod tests {
 
     #[test]
     fn test_flatten_tabs_and_spaces_preserved() {
-        assert_eq!(flatten_text("Hello\t\tWorld   Test"), "Hello\t\tWorld   Test");
+        assert_eq!(
+            flatten_text("Hello\t\tWorld   Test"),
+            "Hello\t\tWorld   Test"
+        );
         assert_eq!(flatten_text("  Indented\n  Text  "), "  Indented  Text  ");
     }
 
