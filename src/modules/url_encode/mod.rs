@@ -9,10 +9,6 @@ impl ToolModule for UrlEncodeModule {
         "url-encode"
     }
 
-    fn description(&self) -> &'static str {
-        "URL encode a string"
-    }
-
     fn configure_args(&self, cmd: Command) -> Command {
         cmd.arg(
             Arg::new("url-encode")
@@ -29,10 +25,6 @@ impl ToolModule for UrlEncodeModule {
             println!("{}", encoded);
         }
         Ok(())
-    }
-
-    fn handles_subcommand(&self, subcommand: &str) -> bool {
-        subcommand == "url-encode"
     }
 }
 

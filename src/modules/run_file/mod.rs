@@ -12,10 +12,6 @@ impl ToolModule for RunFileModule {
         "run-file"
     }
 
-    fn description(&self) -> &'static str {
-        "Run file based on extension"
-    }
-
     fn configure_args(&self, cmd: Command) -> Command {
         cmd.arg(
             Arg::new("run")
@@ -39,10 +35,6 @@ impl ToolModule for RunFileModule {
             FileRunner::run(file, &arg_refs);
         }
         Ok(())
-    }
-
-    fn handles_subcommand(&self, subcommand: &str) -> bool {
-        subcommand == "run"
     }
 }
 

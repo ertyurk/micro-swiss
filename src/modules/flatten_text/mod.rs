@@ -10,10 +10,6 @@ impl ToolModule for FlattenTextModule {
         "flatten-text"
     }
 
-    fn description(&self) -> &'static str {
-        "Remove newlines from text (or read from stdin)"
-    }
-
     fn configure_args(&self, cmd: Command) -> Command {
         cmd.arg(
             Arg::new("flatten")
@@ -37,10 +33,6 @@ impl ToolModule for FlattenTextModule {
             }
         }
         Ok(())
-    }
-
-    fn handles_subcommand(&self, subcommand: &str) -> bool {
-        subcommand == "flatten"
     }
 }
 

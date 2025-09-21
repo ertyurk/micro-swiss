@@ -9,10 +9,6 @@ impl ToolModule for Base64EncodeModule {
         "base64-encode"
     }
 
-    fn description(&self) -> &'static str {
-        "Encode string to base64"
-    }
-
     fn configure_args(&self, cmd: Command) -> Command {
         cmd.arg(
             Arg::new("encode")
@@ -29,10 +25,6 @@ impl ToolModule for Base64EncodeModule {
             println!("{}", encoded);
         }
         Ok(())
-    }
-
-    fn handles_subcommand(&self, subcommand: &str) -> bool {
-        subcommand == "encode"
     }
 }
 

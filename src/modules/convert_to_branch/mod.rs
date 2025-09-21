@@ -9,10 +9,6 @@ impl ToolModule for ConvertToBranchModule {
         "convert-to-branch"
     }
 
-    fn description(&self) -> &'static str {
-        "Convert string to branch-friendly format"
-    }
-
     fn configure_args(&self, cmd: Command) -> Command {
         cmd.arg(
             Arg::new("generate-branch")
@@ -29,10 +25,6 @@ impl ToolModule for ConvertToBranchModule {
             println!("{}", branch_name);
         }
         Ok(())
-    }
-
-    fn handles_subcommand(&self, subcommand: &str) -> bool {
-        subcommand == "generate-branch"
     }
 }
 

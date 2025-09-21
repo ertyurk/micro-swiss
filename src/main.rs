@@ -1,17 +1,17 @@
 use clap::Command;
 use std::process;
 
-mod tool_module;
 mod module_registry;
+mod tool_module;
 
-// Include auto-generated modules  
+// Include auto-generated modules
 include!(concat!(env!("OUT_DIR"), "/modules.rs"));
 
 use module_registry::get_module_registry;
 
 fn main() {
     let registry = get_module_registry();
-    
+
     let mut cmd = Command::new("my-shadow")
         .version("0.1.0")
         .about("A collection of utility tools");
@@ -21,14 +21,14 @@ fn main() {
     }
 
     let matches = cmd.get_matches();
-    
+
     let mut executed = false;
     for module in registry.get_modules() {
         if let Err(e) = module.execute(&matches) {
             eprintln!("Error executing module {}: {}", module.name(), e);
             process::exit(1);
         }
-        
+
         // Check if any command was executed using auto-discovered command IDs
         let command_ids = module_registry::get_all_command_ids();
         for &cmd_id in &command_ids {
@@ -40,7 +40,7 @@ fn main() {
     }
 
     if !executed {
-        eprintln!("Please specify a command. Use --help for usage information.");
+        // eprintln!("Please specify a command. Use --help for usage information.");
         process::exit(1);
     }
 }

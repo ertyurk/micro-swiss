@@ -22,7 +22,4 @@ impl ModuleRegistry {
         &self.modules
     }
 
-    pub fn find_module_for_subcommand(&self, subcommand: &str) -> Option<&ToolModuleBox> {
-        self.modules.iter().find(|module| module.handles_subcommand(subcommand))
-    }
 }
