@@ -523,6 +523,7 @@ dependencies = [
  "clap",
  "colored",
  "md5",
+ "qrcode",
  "rand",
  "serde",
  "serde_json",
@@ -690,6 +691,15 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "83f9b339b02259ada5c0f4a389b7fb472f933aa17ce176fd2ad98f28bb401fde"
 dependencies = [
  "num-traits",
+]
+
+[[package]]
+name = "qrcode"
+version = "0.14.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "d68782463e408eb1e668cf6152704bd856c78c5b6417adaee3203d8f4c1fc9ec"
+dependencies = [
+ "image",
 ]
 
 [[package]]

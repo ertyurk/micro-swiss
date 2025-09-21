@@ -107,16 +107,25 @@ fn to_constant_case(text: &str) -> String {
 fn split_into_words(text: &str) -> Vec<String> {
     let mut words = Vec::new();
     let mut current_word = String::new();
-    let mut chars = text.chars().peekable();
+    let chars: Vec<char> = text.chars().collect();
     
-    while let Some(ch) = chars.next() {
+    for &ch in chars.iter() {
         if ch.is_alphanumeric() {
-            // Handle camelCase transitions
-            if ch.is_uppercase() && !current_word.is_empty() && current_word.chars().last().unwrap().is_lowercase() {
-                if !current_word.is_empty() {
-                    words.push(current_word.clone());
-                    current_word.clear();
-                }
+            let should_split = if !current_word.is_empty() {
+                let last_char = current_word.chars().last().unwrap();
+                // Split on lowercase to uppercase transition
+                (ch.is_uppercase() && last_char.is_lowercase()) ||
+                // Split on number to letter transition
+                (ch.is_alphabetic() && last_char.is_numeric()) ||
+                // Split on letter to number transition  
+                (ch.is_numeric() && last_char.is_alphabetic())
+            } else {
+                false
+            };
+            
+            if should_split {
+                words.push(current_word.clone());
+                current_word.clear();
             }
             current_word.push(ch);
         } else if ch.is_whitespace() || ch == '_' || ch == '-' || !ch.is_alphanumeric() {
@@ -233,7 +242,7 @@ mod tests {
         assert_eq!(split_into_words("helloWorld"), vec!["hello", "World"]);
         assert_eq!(split_into_words("hello_world"), vec!["hello", "world"]);
         assert_eq!(split_into_words("hello-world"), vec!["hello", "world"]);
-        assert_eq!(split_into_words("hello123world"), vec!["hello123world"]);
+        assert_eq!(split_into_words("hello123world"), vec!["hello", "123", "world"]);
         assert_eq!(split_into_words("XMLHttpRequest"), vec!["XMLHttp", "Request"]);
     }
 
@@ -247,7 +256,7 @@ mod tests {
 
     #[test]
     fn test_with_numbers_and_special_chars() {
-        assert_eq!(to_snake_case("hello123World"), "hello123_world");
+        assert_eq!(to_snake_case("hello123World"), "hello_123_world");
         assert_eq!(to_camel_case("hello-world-2023"), "helloWorld2023");
         assert_eq!(to_pascal_case("api_v2_endpoint"), "ApiV2Endpoint");
     }
