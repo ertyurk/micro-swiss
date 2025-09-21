@@ -69,4 +69,57 @@ mod tests {
     fn test_flatten_empty() {
         assert_eq!(flatten_text(""), "");
     }
+
+    #[test]
+    fn test_flatten_only_newlines() {
+        assert_eq!(flatten_text("\n\n\n"), "");
+        assert_eq!(flatten_text("\n"), "");
+    }
+
+    #[test]
+    fn test_flatten_mixed_line_endings() {
+        assert_eq!(flatten_text("line1\nline2\r\nline3\rline4"), "line1line2\rline3\rline4");
+    }
+
+    #[test]
+    fn test_flatten_leading_trailing_newlines() {
+        assert_eq!(flatten_text("\nHello World\n"), "Hello World");
+        assert_eq!(flatten_text("\n\n\nContent\n\n\n"), "Content");
+    }
+
+    #[test]
+    fn test_flatten_consecutive_newlines() {
+        assert_eq!(flatten_text("Line1\n\n\nLine2"), "Line1Line2");
+        assert_eq!(flatten_text("A\n\n\n\n\nB"), "AB");
+    }
+
+    #[test]
+    fn test_flatten_tabs_and_spaces_preserved() {
+        assert_eq!(flatten_text("Hello\t\tWorld   Test"), "Hello\t\tWorld   Test");
+        assert_eq!(flatten_text("  Indented\n  Text  "), "  Indented  Text  ");
+    }
+
+    #[test]
+    fn test_flatten_unicode_with_newlines() {
+        assert_eq!(flatten_text("🔥\nfire\n🌊\nwater"), "🔥fire🌊water");
+        assert_eq!(flatten_text("café\nnaïve"), "cafénaïve");
+    }
+
+    #[test]
+    fn test_flatten_very_long_text() {
+        let long_text = "a".repeat(1000) + "\n" + &"b".repeat(1000);
+        let expected = "a".repeat(1000) + &"b".repeat(1000);
+        assert_eq!(flatten_text(&long_text), expected);
+    }
+
+    #[test]
+    fn test_flatten_single_char() {
+        assert_eq!(flatten_text("a"), "a");
+        assert_eq!(flatten_text("🔥"), "🔥");
+    }
+
+    #[test]
+    fn test_flatten_special_characters() {
+        assert_eq!(flatten_text("!@#$%^&*()\n{}[]|\\"), "!@#$%^&*(){}[]|\\");
+    }
 }

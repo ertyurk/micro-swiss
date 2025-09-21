@@ -123,4 +123,73 @@ mod tests {
         assert!(extensions.contains(&"go"));
         assert!(extensions.len() >= 5);
     }
+
+    #[test]
+    fn test_is_supported_file_edge_cases() {
+        assert!(!FileRunner::is_supported_file(""));
+        assert!(!FileRunner::is_supported_file("."));
+        assert!(!FileRunner::is_supported_file(".."));
+        assert!(!FileRunner::is_supported_file("file."));
+        assert!(!FileRunner::is_supported_file(".hidden"));
+    }
+
+    #[test]
+    fn test_is_supported_file_case_sensitivity() {
+        assert!(!FileRunner::is_supported_file("test.PY"));
+        assert!(!FileRunner::is_supported_file("test.JS"));
+        assert!(!FileRunner::is_supported_file("test.GO"));
+        assert!(!FileRunner::is_supported_file("test.TS"));
+    }
+
+    #[test]
+    fn test_is_supported_file_multiple_extensions() {
+        assert!(!FileRunner::is_supported_file("test.tar.gz"));
+        assert!(FileRunner::is_supported_file("test.backup.py"));
+        assert!(FileRunner::is_supported_file("config.json.js"));
+    }
+
+    #[test]
+    fn test_is_supported_file_special_characters() {
+        assert!(FileRunner::is_supported_file("test-file.py"));
+        assert!(FileRunner::is_supported_file("test_file.js"));
+        assert!(FileRunner::is_supported_file("test file.go"));
+        assert!(FileRunner::is_supported_file("test@file.ts"));
+    }
+
+    #[test]
+    fn test_is_supported_file_unicode_emoji() {
+        assert!(FileRunner::is_supported_file("test.🔥"));
+        assert!(!FileRunner::is_supported_file("🔥.txt"));
+    }
+
+    #[test]
+    fn test_is_supported_file_path_with_directories() {
+        assert!(FileRunner::is_supported_file("/path/to/file.py"));
+        assert!(FileRunner::is_supported_file("../relative/path/file.js"));
+        assert!(FileRunner::is_supported_file("./file.go"));
+    }
+
+    #[test]
+    fn test_is_supported_file_long_filename() {
+        let long_name = "a".repeat(255);
+        assert!(FileRunner::is_supported_file(&format!("{}.py", long_name)));
+        assert!(!FileRunner::is_supported_file(&format!("{}.unknown", long_name)));
+    }
+
+    #[test]
+    fn test_get_supported_extensions_immutability() {
+        let extensions1 = FileRunner::get_supported_extensions();
+        let extensions2 = FileRunner::get_supported_extensions();
+        assert_eq!(extensions1.len(), extensions2.len());
+        for ext in extensions1 {
+            assert!(extensions2.contains(&ext));
+        }
+    }
+
+    #[test]
+    fn test_is_supported_file_no_extension() {
+        assert!(!FileRunner::is_supported_file("makefile"));
+        assert!(!FileRunner::is_supported_file("dockerfile"));
+        assert!(!FileRunner::is_supported_file("readme"));
+    }
 }
