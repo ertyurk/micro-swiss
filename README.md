@@ -5,6 +5,7 @@ A collection of utility tools written in Rust with **automatic module discovery*
 ## 🚀 Installation & Setup
 
 ### Build Release Binary (Recommended)
+
 ```bash
 # Build optimized release binary
 cargo build --release
@@ -13,9 +14,11 @@ cargo build --release
 ```
 
 ### Add Global Shell Alias
+
 For easy access from anywhere, add to your shell configuration:
 
 **For zsh (`~/.zshrc`):**
+
 ```bash
 # Add MicroSwiss alias for global access
 alias ms='/path/to/micro-swiss/target/release/micro-swiss'
@@ -25,14 +28,16 @@ source ~/.zshrc
 ```
 
 **For bash (`~/.bashrc`):**
+
 ```bash
 alias ms='/path/to/micro-swiss/target/release/micro-swiss'
 source ~/.bashrc
 ```
 
 ### Usage with Alias
+
 ```bash
-# Now use 'ms' from anywhere  
+# Now use 'ms' from anywhere
 ms -g "Feature Request Name"  # Generate branch name (auto-copied!)
 ms -f "multi\nline text"      # Flatten text
 ms -e "hello world"           # Base64 encode
@@ -43,7 +48,9 @@ ms -r script.py               # Run file
 ## 🛠️ Available Tools
 
 ### 🌿 Branch Name Generator (`-g, --generate-branch`)
+
 Convert strings to git-friendly branch names with **automatic clipboard copy**
+
 ```bash
 ms -g "Feature Request Name"
 # Output: feature-request-name (copied to clipboard)
@@ -51,8 +58,10 @@ ms -g "Feature Request Name"
 
 ✨ **Auto-clipboard**: The generated branch name is automatically copied to your clipboard for instant use!
 
-### 📝 Text Flattener (`-f, --flatten`)  
+### 📝 Text Flattener (`-f, --flatten`)
+
 Remove newlines from text input
+
 ```bash
 # From argument
 ms -f "Line 1\nLine 2\nLine 3"
@@ -64,21 +73,27 @@ echo -e "Line 1\nLine 2" | ms -f
 ```
 
 ### 🔐 Base64 Encoder (`-e, --encode`)
+
 Encode strings to base64 format
+
 ```bash
 ms -e "hello world"
 # Output: aGVsbG8gd29ybGQ=
 ```
 
 ### 🌐 URL Encoder (`-u, --url-encode`)
+
 URL encode strings for web use
+
 ```bash
 ms -u "hello@world.com?test=true"
 # Output: hello%40world.com%3Ftest%3Dtrue
 ```
 
 ### 🚀 Smart File Runner (`-r, --run`)
+
 Execute files with automatic interpreter detection
+
 ```bash
 # Python (uses uv)
 ms -r script.py
@@ -86,7 +101,7 @@ ms -r script.py
 # JavaScript (uses node)
 ms -r app.js
 
-# TypeScript (uses deno)  
+# TypeScript (uses deno)
 ms -r main.ts
 
 # Go (uses go run)
@@ -101,31 +116,33 @@ ms -r script.py arg1 arg2 --flag
 
 ## 📋 Supported File Types
 
-| Extension | Runtime | Command |
-|-----------|---------|---------|
-| `.py` | uv | `uv run` |
-| `.js` | node | `node` |
-| `.ts` | deno | `deno run --allow-all` |
-| `.go` | go | `go run` |
-| `.mojo`, `.🔥` | mojo | `mojo` |
+| Extension      | Runtime | Command                |
+| -------------- | ------- | ---------------------- |
+| `.py`          | uv      | `uv run`               |
+| `.js`          | node    | `node`                 |
+| `.ts`          | deno    | `deno run --allow-all` |
+| `.go`          | go      | `go run`               |
+| `.mojo`, `.🔥` | mojo    | `mojo`                 |
 
 ## 🏗️ Auto-Discovery Architecture
 
 **Zero-configuration module system!** The project uses **automatic build-time module discovery**:
 
 - **Drop & Go**: Create a new module directory in `src/modules/` and it's automatically discovered
-- **No Registration**: No manual registration in any files required  
+- **No Registration**: No manual registration in any files required
 - **Build-time Safety**: All modules verified at compile time
 - **Clean Interface**: Each module implements the `ToolModule` trait
 
 ### Current Auto-Discovered Modules:
+
 - `convert_to_branch/` - Branch name generation
 - `flatten_text/` - Text flattening
-- `run_file/` - Smart file execution  
+- `run_file/` - Smart file execution
 - `base64_encode/` - Base64 encoding
 - `url_encode/` - URL encoding
 
 ### Adding New Modules
+
 1. Create directory: `src/modules/your_module/`
 2. Create `mod.rs` with a struct implementing `ToolModule`
 3. Build - your module is automatically discovered and registered!
@@ -177,16 +194,3 @@ cargo run -- -g "test string"
 # Build optimized binary
 cargo build --release
 ```
-
-## 📦 Dependencies
-
-- `clap` - Command line argument parsing with derive features
-- `colored` - Terminal color output for file runner
-- `arboard` - Cross-platform clipboard access for auto-copy feature
-
-## 🔧 Legacy Shell Scripts
-
-The repository includes shell script versions for reference:
-- `convert_to_branch_name.sh` - Branch name conversion
-- `make_params.sh` - Text flattening  
-- `runner_helper.sh` - File execution
