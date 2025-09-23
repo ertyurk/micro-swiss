@@ -516,6 +516,24 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "32a282da65faaf38286cf3be983213fcf1d2e2a58700e808f83f4ea9a4804bc0"
 
 [[package]]
+name = "micro-swiss"
+version = "0.1.0"
+dependencies = [
+ "arboard",
+ "chrono",
+ "clap",
+ "colored",
+ "md5",
+ "qrcode",
+ "rand",
+ "regex",
+ "serde",
+ "serde_json",
+ "sha2",
+ "uuid",
+]
+
+[[package]]
 name = "miniz_oxide"
 version = "0.8.9"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -533,24 +551,6 @@ checksum = "ddd32fa8935aeadb8a8a6b6b351e40225570a37c43de67690383d87ef170cd08"
 dependencies = [
  "num-traits",
  "pxfm",
-]
-
-[[package]]
-name = "my-shadow"
-version = "0.1.0"
-dependencies = [
- "arboard",
- "chrono",
- "clap",
- "colored",
- "md5",
- "qrcode",
- "rand",
- "regex",
- "serde",
- "serde_json",
- "sha2",
- "uuid",
 ]
 
 [[package]]

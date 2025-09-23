@@ -12,34 +12,34 @@ use module_registry::get_module_registry;
 fn main() {
     let registry = get_module_registry();
 
-    let mut cmd = Command::new("my-shadow")
+    let mut cmd = Command::new("micro-swiss")
         .version("0.1.0")
         .about("A collection of utility tools for developers")
         .after_help("For more information about each command, use --help with the specific option.")
         .after_long_help(
             "EXAMPLES:
     # Base64 encoding/decoding
-    my-shadow --encode \"Hello World\"
-    my-shadow --decode \"SGVsbG8gV29ybGQ=\"
+    micro-swiss --encode \"Hello World\"
+    micro-swiss --decode \"SGVsbG8gV29ybGQ=\"
 
     # URL encoding/decoding
-    my-shadow --url-encode \"hello world & test\"
-    my-shadow --url-decode \"hello+world+%26+test\"
+    micro-swiss --url-encode \"hello world & test\"
+    micro-swiss --url-decode \"hello+world+%26+test\"
 
     # Password generation
-    my-shadow --password 12        # Generate 12-char password
-    my-shadow -p                   # Generate 16-char password (default)
+    micro-swiss --password 12        # Generate 12-char password
+    micro-swiss -p                   # Generate 16-char password (default)
 
     # Git branch name conversion
-    my-shadow --generate-branch \"Fix: urgent bug with user data\"
+    micro-swiss --generate-branch \"Fix: urgent bug with user data\"
 
     # Text flattening (remove newlines)
-    my-shadow --flatten \"line1\\nline2\\nline3\"
-    echo -e \"line1\\nline2\" | my-shadow --flatten
+    micro-swiss --flatten \"line1\\nline2\\nline3\"
+    echo -e \"line1\\nline2\" | micro-swiss --flatten
 
     # Run files by extension
-    my-shadow --run script.py
-    my-shadow --run main.go"
+    micro-swiss --run script.py
+    micro-swiss --run main.go"
         );
 
     for module in registry.get_modules() {

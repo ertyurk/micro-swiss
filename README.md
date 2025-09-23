@@ -1,4 +1,4 @@
-# my-shadow
+# MicroSwiss
 
 A collection of utility tools written in Rust with **automatic module discovery**. This CLI application provides various text processing and file execution utilities in a self-expanding modular architecture.
 
@@ -9,7 +9,7 @@ A collection of utility tools written in Rust with **automatic module discovery*
 # Build optimized release binary
 cargo build --release
 
-# The optimized binary will be at target/release/my-shadow
+# The optimized binary will be at target/release/micro-swiss
 ```
 
 ### Add Global Shell Alias
@@ -17,8 +17,8 @@ For easy access from anywhere, add to your shell configuration:
 
 **For zsh (`~/.zshrc`):**
 ```bash
-# Add my-shadow alias for global access
-alias shadow='/path/to/my-shadow/target/release/my-shadow'
+# Add MicroSwiss alias for global access
+alias ms='/path/to/micro-swiss/target/release/micro-swiss'
 
 # Reload your shell config
 source ~/.zshrc
@@ -26,7 +26,7 @@ source ~/.zshrc
 
 **For bash (`~/.bashrc`):**
 ```bash
-alias shadow='/path/to/my-shadow/target/release/my-shadow'
+alias ms='/path/to/micro-swiss/target/release/micro-swiss'
 source ~/.bashrc
 ```
 
@@ -55,25 +55,25 @@ ms -g "Feature Request Name"
 Remove newlines from text input
 ```bash
 # From argument
-shadow -f "Line 1\nLine 2\nLine 3"
+ms -f "Line 1\nLine 2\nLine 3"
 # Output: Line 1Line 2Line 3
 
 # From stdin
-echo -e "Line 1\nLine 2" | shadow -f
+echo -e "Line 1\nLine 2" | ms -f
 # Output: Line 1Line 2
 ```
 
 ### 🔐 Base64 Encoder (`-e, --encode`)
 Encode strings to base64 format
 ```bash
-shadow -e "hello world"
+ms -e "hello world"
 # Output: aGVsbG8gd29ybGQ=
 ```
 
 ### 🌐 URL Encoder (`-u, --url-encode`)
 URL encode strings for web use
 ```bash
-shadow -u "hello@world.com?test=true"
+ms -u "hello@world.com?test=true"
 # Output: hello%40world.com%3Ftest%3Dtrue
 ```
 
@@ -81,22 +81,22 @@ shadow -u "hello@world.com?test=true"
 Execute files with automatic interpreter detection
 ```bash
 # Python (uses uv)
-shadow -r script.py
+ms -r script.py
 
 # JavaScript (uses node)
-shadow -r app.js
+ms -r app.js
 
 # TypeScript (uses deno)  
-shadow -r main.ts
+ms -r main.ts
 
 # Go (uses go run)
-shadow -r main.go
+ms -r main.go
 
 # Mojo (uses mojo)
-shadow -r app.mojo
+ms -r app.mojo
 
 # Pass arguments to the executed file
-shadow -r script.py arg1 arg2 --flag
+ms -r script.py arg1 arg2 --flag
 ```
 
 ## 📋 Supported File Types
@@ -168,7 +168,7 @@ impl ToolModule for YourModule {
 cargo test
 
 # Test specific module
-cargo test -p my-shadow --test base64_encode
+cargo test -p micro-swiss --test base64_encode
 
 # Run in development mode
 cargo run -- --help
