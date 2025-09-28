@@ -2,6 +2,10 @@
 
 A comprehensive collection of developer utility tools written in Rust with **automatic module discovery** and **clipboard integration**. This CLI application provides 17 essential developer tools including text processing, file operations, cryptographic utilities, data conversion, and more in a self-expanding modular architecture.
 
+## Motivation
+
+Often AI coding agents are performing these actions manually and spends unnecessary tokens. I wanted a single CLI tool that could handle a variety of common utilities.
+
 ## 🚀 Installation & Setup
 
 ### Build Release Binary (Recommended)
@@ -50,28 +54,36 @@ ms -r script.py               # Run file
 ### 🔐 Cryptographic & Security Tools
 
 #### Password Generator (`-p, --password`)
+
 Generate cryptographically secure passwords with automatic clipboard copy
+
 ```bash
 ms -p           # Generate 16-char password (default)
 ms -p 24        # Generate 24-char password
 ```
 
 #### Hash Generator (`--hash`)
+
 Generate MD5 or SHA256 hashes for text input
+
 ```bash
 ms --hash "text to hash"        # SHA256 (default)
 ms --hash "text to hash" md5    # MD5 hash
 ```
 
 #### File Checksum (`--checksum`)
+
 Calculate file checksums for integrity verification
+
 ```bash
 ms --checksum file.txt          # SHA256 checksum (default)
 ms --checksum file.txt md5      # MD5 checksum
 ```
 
 #### UUID Generator (`--uuid-generate`)
+
 Generate UUIDs for unique identifiers
+
 ```bash
 ms --uuid-generate      # Generate UUID v4 (random)
 ms --uuid-generate v7   # Generate UUID v7 (timestamp-based)
@@ -80,7 +92,9 @@ ms --uuid-generate v7   # Generate UUID v7 (timestamp-based)
 ### 🎨 Text & Data Processing
 
 #### Case Converter (`--case-convert`)
+
 Convert text between multiple case formats
+
 ```bash
 ms --case-convert "hello world" camel    # helloWorld
 ms --case-convert "hello world" pascal   # HelloWorld
@@ -93,21 +107,27 @@ ms --case-convert "hello world" lower    # hello world
 ```
 
 #### Base64 Encoder (`-e, --encode`)
+
 Encode strings to base64 format
+
 ```bash
 ms -e "hello world"
 # Output: aGVsbG8gd29ybGQ=
 ```
 
 #### URL Encoder (`-u, --url-encode`)
+
 URL encode strings for web use
+
 ```bash
 ms -u "hello@world.com?test=true"
 # Output: hello%40world.com%3Ftest%3Dtrue
 ```
 
 #### Text Flattener (`-f, --flatten`)
+
 Remove newlines from text input
+
 ```bash
 ms -f "Line 1\nLine 2\nLine 3"    # From argument
 echo -e "Line 1\nLine 2" | ms -f  # From stdin
@@ -116,21 +136,27 @@ echo -e "Line 1\nLine 2" | ms -f  # From stdin
 ### 🌐 Web & Data Tools
 
 #### JSON Formatter (`--json-pretty`, `--json-minify`)
+
 Format and minify JSON data
+
 ```bash
 ms --json-pretty '{"name":"test","value":123}'   # Pretty print
 ms --json-minify '{ "name" : "test" }'           # Minify
 ```
 
 #### URL Parser (`--parse-url`)
+
 Parse URLs into structured JSON components
+
 ```bash
 ms --parse-url "https://example.com/path?param=value"
 # Extracts protocol, domain, path, query parameters
 ```
 
 #### Color Converter (`--color-convert`)
+
 Convert between hex, RGB, and HSL color formats
+
 ```bash
 ms --color-convert "#ff0000"          # Convert to all formats
 ms --color-convert "rgb(255,0,0)" hex # Convert to specific format
@@ -138,7 +164,9 @@ ms --color-convert "hsl(0,100%,50%)"  # Auto-detect input format
 ```
 
 #### QR Code Generator (`--qr-generate`)
+
 Generate QR codes as ASCII art in terminal
+
 ```bash
 ms --qr-generate "https://example.com"
 ms --qr-generate "Hello World"
@@ -147,7 +175,9 @@ ms --qr-generate "Hello World"
 ### 📅 Date & Time Tools
 
 #### Date Calculator (`--date-add`, `--date-sub`)
+
 Perform date arithmetic operations
+
 ```bash
 ms --date-add "25/12/2023" 7    # Add 7 days
 ms --date-sub "01-01-2024" 30   # Subtract 30 days
@@ -157,14 +187,18 @@ ms --date-sub "01-01-2024" 30   # Subtract 30 days
 ### 🔧 Development Tools
 
 #### Branch Name Generator (`-g, --generate-branch`)
+
 Convert strings to git-friendly branch names with automatic clipboard copy
+
 ```bash
 ms -g "Feature Request Name"
 # Output: feature-request-name (copied to clipboard)
 ```
 
 #### Smart File Runner (`-r, --run`)
+
 Execute files with automatic interpreter detection
+
 ```bash
 ms -r script.py     # Python (uses uv)
 ms -r app.js        # JavaScript (uses node)
@@ -175,14 +209,18 @@ ms -r script.py arg1 arg2 --flag  # Pass arguments
 ```
 
 #### File Size Calculator (`--file-size`)
+
 Get human-readable file sizes or convert byte values
+
 ```bash
 ms --file-size /path/to/file    # File size in human format
 ms --file-size 1048576          # Convert bytes to readable format
 ```
 
 #### Regex Tester (`--regex-test`)
+
 Test regular expressions against text
+
 ```bash
 ms --regex-test "\d+" "abc123def456"
 # Shows matches with positions and capture groups
@@ -210,27 +248,32 @@ ms --regex-test "\d+" "abc123def456"
 ### Current Auto-Discovered Modules (17 total):
 
 **Cryptographic & Security:**
+
 - `password_gen/` - Password generation
 - `hash/` - Text hashing (MD5/SHA256)
 - `checksum/` - File checksum calculation
 - `uuid_generate/` - UUID generation
 
 **Text & Data Processing:**
+
 - `case_convert/` - Text case conversion
 - `base64_encode/` - Base64 encoding
 - `url_encode/` - URL encoding
 - `flatten_text/` - Text flattening
 
 **Web & Data Tools:**
+
 - `json_format/` - JSON formatting/minification
 - `url_parse/` - URL parsing
 - `color_convert/` - Color format conversion
 - `qr_generate/` - QR code generation
 
 **Date & Time:**
+
 - `date_calc/` - Date arithmetic
 
 **Development Tools:**
+
 - `convert_to_branch/` - Git branch name generation
 - `run_file/` - Smart file execution
 - `file_size/` - File size calculation
@@ -252,11 +295,11 @@ pub struct YourModule;
 
 impl ToolModule for YourModule {
     fn name(&self) -> &'static str { "your-module" }
-    
+
     fn configure_args(&self, cmd: Command) -> Command {
         cmd.arg(Arg::new("your-flag").short('y').long("your-flag"))
     }
-    
+
     fn execute(&self, matches: &ArgMatches) -> Result<(), Box<dyn Error>> {
         // Your implementation
         Ok(())
