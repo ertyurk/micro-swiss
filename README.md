@@ -4,7 +4,7 @@ A comprehensive collection of developer utility tools written in Rust with **aut
 
 ## Motivation
 
-Often AI coding agents are performing these actions manually and spends unnecessary tokens. I wanted a single CLI tool that could handle a variety of common utilities.
+Often AI coding agents or My Agents are performing these actions manually and spends unnecessary tokens. I wanted a single CLI tool that could handle a variety of common utilities along with my in-terminal usage.
 
 ## 🚀 Installation & Setup
 
