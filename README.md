@@ -1,6 +1,6 @@
 # MicroSwiss
 
-A comprehensive collection of developer utility tools written in Rust with **automatic module discovery** and **clipboard integration**. This CLI application provides 17 essential developer tools including text processing, file operations, cryptographic utilities, data conversion, and more in a self-expanding modular architecture.
+A comprehensive collection of developer utility tools written in Rust with **automatic module discovery** and **clipboard integration**. This CLI application provides 18 essential developer tools including text processing, file operations, cryptographic utilities, data conversion, database connectivity, and more in a self-expanding modular architecture.
 
 ## Motivation
 
@@ -47,6 +47,7 @@ ms -f "multi\nline text"      # Flatten text
 ms -e "hello world"           # Base64 encode
 ms -u "test@example.com"      # URL encode
 ms -r script.py               # Run file
+ms -c "postgres://user:pass@localhost:5432/db"  # Connect to database
 ```
 
 ## 🛠️ Available Tools
@@ -184,6 +185,39 @@ ms --date-sub "01-01-2024" 30   # Subtract 30 days
 # Supports formats: DDMMYYYY, DD/MM/YYYY, DD-MM-YYYY
 ```
 
+### 🗄️ Database Tools
+
+#### PostgreSQL Database Connection (`-c, --connect`)
+
+Connect to PostgreSQL databases and execute SQL queries with interactive sessions
+
+```bash
+ms -c "postgres://postgres:mysecretpassword@localhost:5432/medusa"
+# Starts interactive SQL session with csv output format
+
+# Example session:
+# sql> SELECT * FROM users LIMIT 3;
+# id,name,email,created_at
+# 1,John Doe,john@example.com,2024-01-15 10:30:00
+# 2,Jane Smith,jane@example.com,2024-01-16 14:20:00
+# 3,Bob Johnson,bob@example.com,2024-01-17 09:45:00
+#
+# sql> SELECT COUNT(*) FROM orders WHERE status = 'completed';
+# count
+# 42
+#
+# sql> exit
+# Goodbye! 👋
+```
+
+**Features:**
+- Interactive SQL session with `sql>` prompt
+- Automatic CSV formatting for all query results  
+- Persistent connection throughout session
+- Support for all PostgreSQL data types
+- Type `exit` or `quit` to end session
+- Connection string validation and error handling
+
 ### 🔧 Development Tools
 
 #### Branch Name Generator (`-g, --generate-branch`)
@@ -245,7 +279,7 @@ ms --regex-test "\d+" "abc123def456"
 - **Build-time Safety**: All modules verified at compile time
 - **Clean Interface**: Each module implements the `ToolModule` trait
 
-### Current Auto-Discovered Modules (17 total):
+### Current Auto-Discovered Modules (18 total):
 
 **Cryptographic & Security:**
 
@@ -271,6 +305,10 @@ ms --regex-test "\d+" "abc123def456"
 **Date & Time:**
 
 - `date_calc/` - Date arithmetic
+
+**Database Tools:**
+
+- `db_connect/` - PostgreSQL database connections and interactive SQL sessions
 
 **Development Tools:**
 
@@ -314,6 +352,7 @@ impl ToolModule for YourModule {
 - **🎨 Rich Text Processing**: Multiple case formats, encoding/decoding, formatting
 - **🌐 Web Development**: URL parsing, color conversion, JSON formatting
 - **📅 Date Utilities**: Date arithmetic with multiple format support
+- **🗄️ Database Connectivity**: Interactive PostgreSQL sessions with CSV output
 - **🧰 Developer Tools**: File execution, regex testing, branch naming
 - **⚡ Performance**: Optimized Rust binary with minimal startup time
 - **🔧 Modular**: Self-expanding architecture with automatic module discovery
@@ -351,3 +390,7 @@ Key dependencies used by MicroSwiss:
 - **md5/sha2** - Cryptographic hashing
 - **qrcode** - QR code generation
 - **rand** - Cryptographically secure random numbers
+- **tokio-postgres** - Async PostgreSQL client
+- **tokio** - Async runtime
+- **url** - URL parsing and validation
+- **csv** - CSV formatting and parsing
