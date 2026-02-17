@@ -1,396 +1,277 @@
-# MicroSwiss
+# micro-swiss (`ms`)
 
-A comprehensive collection of developer utility tools written in Rust with **automatic module discovery** and **clipboard integration**. This CLI application provides 18 essential developer tools including text processing, file operations, cryptographic utilities, data conversion, database connectivity, and more in a self-expanding modular architecture.
+A developer utility CLI written in Rust. 28 subcommands covering text processing, encoding, hashing, date math, file ops, networking, database connectivity, and more — with automatic module discovery and clipboard integration.
 
 ## Motivation
 
-Often AI coding agents are performing these actions manually and spends unnecessary tokens. I wanted a single CLI tool that could handle a variety of common utilities.
+AI coding agents and developers repeatedly perform the same small operations — encoding, hashing, formatting, converting. `ms` puts them all behind one binary with zero startup cost.
 
-## 🚀 Installation & Setup
-
-### Build Release Binary (Recommended)
+## Installation
 
 ```bash
 # Build optimized release binary
-cargo build --release
+cargo build --release --all-features
 
-# The optimized binary will be at target/release/micro-swiss
+# Binary is at target/release/ms
+# Optionally install globally:
+cargo install --path .
 ```
 
-### Add Global Shell Alias
+### Feature Flags
 
-For easy access from anywhere, add to your shell configuration:
-
-**For zsh (`~/.zshrc`):**
+| Flag   | Includes                | Default          |
+| ------ | ----------------------- | ---------------- |
+| `db`   | PostgreSQL (`ms db`)    | yes (via `full`) |
+| `http` | HTTP client (`ms http`) | yes (via `full`) |
+| `full` | Both `db` + `http`      | yes              |
 
 ```bash
-# Add MicroSwiss alias for global access
-alias ms='/path/to/micro-swiss/target/release/micro-swiss'
-
-# Reload your shell config
-source ~/.zshrc
+cargo build --release                    # everything
+cargo build --release --no-default-features  # minimal, no db/http
+cargo build --release --features db      # only db
 ```
 
-**For bash (`~/.bashrc`):**
+## Commands
+
+### Encoding & Decoding
 
 ```bash
-alias ms='/path/to/micro-swiss/target/release/micro-swiss'
-source ~/.bashrc
+ms base64 encode "hello"              # aGVsbG8=
+ms base64 decode "aGVsbG8="           # hello
+echo "hello" | ms base64 encode       # stdin works everywhere
+
+ms url encode "hello world"           # hello+world
+ms url decode "hello+world"           # hello world
+ms url parse "https://example.com?a=1"  # structured JSON output
 ```
 
-### Usage with Alias
+### Hashing & Checksums
 
 ```bash
-# Now use 'ms' from anywhere
-ms -g "Feature Request Name"  # Generate branch name (auto-copied!)
-ms -f "multi\nline text"      # Flatten text
-ms -e "hello world"           # Base64 encode
-ms -u "test@example.com"      # URL encode
-ms -r script.py               # Run file
-ms -c "postgres://user:pass@localhost:5432/db"  # Connect to database
+ms hash "hello"                       # SHA256 (default), copied to clipboard
+ms hash "hello" md5                   # MD5
+echo "secret" | ms hash              # stdin
+
+ms checksum file.txt                  # SHA256 file checksum
+ms checksum file.txt md5              # MD5 file checksum
 ```
 
-## 🛠️ Available Tools
-
-### 🔐 Cryptographic & Security Tools
-
-#### Password Generator (`-p, --password`)
-
-Generate cryptographically secure passwords with automatic clipboard copy
+### Password & UUID
 
 ```bash
-ms -p           # Generate 16-char password (default)
-ms -p 24        # Generate 24-char password
+ms password                           # 16-char secure password, copied
+ms password 32                        # custom length
+
+ms uuid                               # UUID v4 (random), copied
+ms uuid v7                            # UUID v7 (timestamp)
 ```
 
-#### Hash Generator (`--hash`)
-
-Generate MD5 or SHA256 hashes for text input
+### Text Processing
 
 ```bash
-ms --hash "text to hash"        # SHA256 (default)
-ms --hash "text to hash" md5    # MD5 hash
+ms case upper "hello world"           # HELLO WORLD
+ms case camel "hello world"           # helloWorld
+ms case snake "helloWorld"            # hello_world
+ms case kebab "helloWorld"            # hello-world
+ms case pascal "hello world"          # HelloWorld
+ms case constant "hello world"        # HELLO_WORLD
+ms case title "hello world"           # Hello World
+
+ms flatten "line1\nline2"             # line1line2
+echo -e "line1\nline2" | ms flatten   # stdin
+
+ms inspect "hello 🌍"                # byte count, chars, lines, words, codepoints
 ```
 
-#### File Checksum (`--checksum`)
-
-Calculate file checksums for integrity verification
+### JSON
 
 ```bash
-ms --checksum file.txt          # SHA256 checksum (default)
-ms --checksum file.txt md5      # MD5 checksum
+ms json pretty '{"a":1,"b":2}'       # pretty print, copied
+ms json minify '{ "a": 1 }'          # minify, copied
+echo '{"a":1}' | ms json pretty      # stdin
 ```
 
-#### UUID Generator (`--uuid-generate`)
-
-Generate UUIDs for unique identifiers
+### Format Conversion
 
 ```bash
-ms --uuid-generate      # Generate UUID v4 (random)
-ms --uuid-generate v7   # Generate UUID v7 (timestamp-based)
+ms convert yaml '{"name":"test"}'     # JSON → YAML
+ms convert json "name: test"          # YAML → JSON
+ms convert toml '{"name":"test"}'     # JSON → TOML
 ```
 
-### 🎨 Text & Data Processing
-
-#### Case Converter (`--case-convert`)
-
-Convert text between multiple case formats
+### Date & Time
 
 ```bash
-ms --case-convert "hello world" camel    # helloWorld
-ms --case-convert "hello world" pascal   # HelloWorld
-ms --case-convert "hello world" snake    # hello_world
-ms --case-convert "hello world" kebab    # hello-world
-ms --case-convert "hello world" constant # HELLO_WORLD
-ms --case-convert "hello world" title    # Hello World
-ms --case-convert "hello world" upper    # HELLO WORLD
-ms --case-convert "hello world" lower    # hello world
+ms date add 01/01/2024 10            # 11/01/2024 (Thursday)
+ms date sub 11/01/2024 10            # 01/01/2024 (Monday)
+# Formats: DDMMYYYY, DD/MM/YYYY, DD-MM-YYYY
+
+ms epoch                              # current epoch + UTC
+ms epoch 1700000000                   # epoch → human date
+ms epoch "2024-01-15"                 # date string → epoch
 ```
 
-#### Base64 Encoder (`-e, --encode`)
-
-Encode strings to base64 format
+### Git & Dev Tools
 
 ```bash
-ms -e "hello world"
-# Output: aGVsbG8gd29ybGQ=
+ms branch "Fix: urgent bug"          # fix-urgent-bug, copied
+echo "Feature Name" | ms branch      # stdin
+
+ms run script.py                     # uv run
+ms run app.js                        # node
+ms run main.ts                       # deno run --allow-all
+ms run main.go                       # go run
+ms run script.py -- arg1 arg2        # pass arguments
+
+ms filesize /path/to/file            # human-readable size, copied
+ms filesize 1048576                  # 1.0 MB
+
+ms regex '\d+' "abc123def456"        # match positions + capture groups
+echo "long text" | ms regex '\w+'    # stdin for text
 ```
 
-#### URL Encoder (`-u, --url-encode`)
-
-URL encode strings for web use
+### Color
 
 ```bash
-ms -u "hello@world.com?test=true"
-# Output: hello%40world.com%3Ftest%3Dtrue
+ms color "#ff0000"                   # all formats (hex, rgb, hsl)
+ms color "rgb(255,0,0)" hex          # → #ff0000
+ms color "hsl(0,100%,50%)" rgb       # → rgb(255,0,0)
 ```
 
-#### Text Flattener (`-f, --flatten`)
-
-Remove newlines from text input
+### QR Code
 
 ```bash
-ms -f "Line 1\nLine 2\nLine 3"    # From argument
-echo -e "Line 1\nLine 2" | ms -f  # From stdin
+ms qr "https://example.com"          # ASCII QR code in terminal
+echo "hello" | ms qr                 # stdin
 ```
 
-### 🌐 Web & Data Tools
-
-#### JSON Formatter (`--json-pretty`, `--json-minify`)
-
-Format and minify JSON data
+### JWT
 
 ```bash
-ms --json-pretty '{"name":"test","value":123}'   # Pretty print
-ms --json-minify '{ "name" : "test" }'           # Minify
+ms jwt "eyJhbGci..."                 # decode header + payload, show expiration
 ```
 
-#### URL Parser (`--parse-url`)
-
-Parse URLs into structured JSON components
+### HTTP (feature: `http`)
 
 ```bash
-ms --parse-url "https://example.com/path?param=value"
-# Extracts protocol, domain, path, query parameters
+ms http GET https://httpbin.org/get
+ms http POST https://httpbin.org/post '{"key":"value"}'
+ms http PUT https://api.example.com/resource '{"updated":true}'
+ms http DELETE https://api.example.com/resource/1
 ```
 
-#### Color Converter (`--color-convert`)
-
-Convert between hex, RGB, and HSL color formats
+### Database (feature: `db`)
 
 ```bash
-ms --color-convert "#ff0000"          # Convert to all formats
-ms --color-convert "rgb(255,0,0)" hex # Convert to specific format
-ms --color-convert "hsl(0,100%,50%)"  # Auto-detect input format
-```
-
-#### QR Code Generator (`--qr-generate`)
-
-Generate QR codes as ASCII art in terminal
-
-```bash
-ms --qr-generate "https://example.com"
-ms --qr-generate "Hello World"
-```
-
-### 📅 Date & Time Tools
-
-#### Date Calculator (`--date-add`, `--date-sub`)
-
-Perform date arithmetic operations
-
-```bash
-ms --date-add "25/12/2023" 7    # Add 7 days
-ms --date-sub "01-01-2024" 30   # Subtract 30 days
-# Supports formats: DDMMYYYY, DD/MM/YYYY, DD-MM-YYYY
-```
-
-### 🗄️ Database Tools
-
-#### PostgreSQL Database Connection (`-c, --connect`)
-
-Connect to PostgreSQL databases and execute SQL queries with interactive sessions
-
-```bash
-ms -c "postgres://postgres:mysecretpassword@localhost:5432/medusa"
-# Starts interactive SQL session with csv output format
-
-# Example session:
+ms db "postgres://user:pass@localhost:5432/mydb"
+# Interactive SQL session with CSV output
 # sql> SELECT * FROM users LIMIT 3;
-# id,name,email,created_at
-# 1,John Doe,john@example.com,2024-01-15 10:30:00
-# 2,Jane Smith,jane@example.com,2024-01-16 14:20:00
-# 3,Bob Johnson,bob@example.com,2024-01-17 09:45:00
-#
-# sql> SELECT COUNT(*) FROM orders WHERE status = 'completed';
-# count
-# 42
-#
 # sql> exit
-# Goodbye! 👋
 ```
 
-**Features:**
-- Interactive SQL session with `sql>` prompt
-- Automatic CSV formatting for all query results  
-- Persistent connection throughout session
-- Support for all PostgreSQL data types
-- Type `exit` or `quit` to end session
-- Connection string validation and error handling
-
-### 🔧 Development Tools
-
-#### Branch Name Generator (`-g, --generate-branch`)
-
-Convert strings to git-friendly branch names with automatic clipboard copy
+### File Diff
 
 ```bash
-ms -g "Feature Request Name"
-# Output: feature-request-name (copied to clipboard)
+ms diff file1.txt file2.txt          # colored unified diff
 ```
 
-#### Smart File Runner (`-r, --run`)
-
-Execute files with automatic interpreter detection
+### Networking
 
 ```bash
-ms -r script.py     # Python (uses uv)
-ms -r app.js        # JavaScript (uses node)
-ms -r main.ts       # TypeScript (uses deno)
-ms -r main.go       # Go (uses go run)
-ms -r app.mojo      # Mojo (uses mojo)
-ms -r script.py arg1 arg2 --flag  # Pass arguments
+ms ip                                # local + public IP
+ms ip local                          # local only
+ms ip public                         # public only
+
+ms port check 8080                   # OPEN or CLOSED
+ms port listen 8080                  # listen for connections (Ctrl+C to stop)
 ```
 
-#### File Size Calculator (`--file-size`)
-
-Get human-readable file sizes or convert byte values
+### Cron
 
 ```bash
-ms --file-size /path/to/file    # File size in human format
-ms --file-size 1048576          # Convert bytes to readable format
+ms cron "*/5 * * * *"                # "At every 5 minutes of every hour"
+ms cron "0 9 * * 1"                  # "At minute 0, hour 9, on Monday"
 ```
 
-#### Regex Tester (`--regex-test`)
-
-Test regular expressions against text
+### Environment Files
 
 ```bash
-ms --regex-test "\d+" "abc123def456"
-# Shows matches with positions and capture groups
+ms env .env                          # display with sensitive values masked
+# API_KEY=sk******* (red)
+# DATABASE_URL=postgres://... (cyan)
 ```
 
-## 📋 Supported File Types
+### Shell Completions & Man Page
 
-| Extension      | Runtime | Command                |
-| -------------- | ------- | ---------------------- |
-| `.py`          | uv      | `uv run`               |
-| `.js`          | node    | `node`                 |
-| `.ts`          | deno    | `deno run --allow-all` |
-| `.go`          | go      | `go run`               |
-| `.mojo`, `.🔥` | mojo    | `mojo`                 |
+```bash
+ms completions zsh >> ~/.zfunc/_ms   # generate completions
+ms completions bash                  # bash completions
+ms completions fish                  # fish completions
+ms manpage > ms.1                    # generate man page
+```
 
-## 🏗️ Auto-Discovery Architecture
+## Architecture
 
-**Zero-configuration module system!** The project uses **automatic build-time module discovery**:
+**Auto-discovery module system** — create a directory in `src/modules/` with a `mod.rs` implementing `ToolModule` and it's automatically registered at build time. No manual wiring needed.
 
-- **Drop & Go**: Create a new module directory in `src/modules/` and it's automatically discovered
-- **No Registration**: No manual registration in any files required
-- **Build-time Safety**: All modules verified at compile time
-- **Clean Interface**: Each module implements the `ToolModule` trait
+```
+src/
+├── main.rs              # subcommand dispatch
+├── error.rs             # MsError + MsResult
+├── tool_module.rs       # ToolModule trait
+├── module_registry.rs   # auto-generated registry
+├── util/
+│   ├── clipboard.rs     # copy_and_print helpers
+│   └── stdin.rs         # stdin detection + reading
+└── modules/
+    ├── base64/          ├── jwt/
+    ├── case_convert/    ├── http/
+    ├── checksum/        ├── diff/
+    ├── color_convert/   ├── convert/
+    ├── convert_to_branch/ ├── epoch/
+    ├── cron/            ├── ip/
+    ├── date/            ├── inspect/
+    ├── db_connect/      ├── port/
+    ├── env/             ├── url/
+    ├── file_size/       ├── uuid_generate/
+    ├── flatten_text/    ├── qr_generate/
+    ├── hash/            ├── regex_test/
+    ├── json/            ├── run_file/
+    └── password_gen/
+```
 
-### Current Auto-Discovered Modules (18 total):
-
-**Cryptographic & Security:**
-
-- `password_gen/` - Password generation
-- `hash/` - Text hashing (MD5/SHA256)
-- `checksum/` - File checksum calculation
-- `uuid_generate/` - UUID generation
-
-**Text & Data Processing:**
-
-- `case_convert/` - Text case conversion
-- `base64_encode/` - Base64 encoding
-- `url_encode/` - URL encoding
-- `flatten_text/` - Text flattening
-
-**Web & Data Tools:**
-
-- `json_format/` - JSON formatting/minification
-- `url_parse/` - URL parsing
-- `color_convert/` - Color format conversion
-- `qr_generate/` - QR code generation
-
-**Date & Time:**
-
-- `date_calc/` - Date arithmetic
-
-**Database Tools:**
-
-- `db_connect/` - PostgreSQL database connections and interactive SQL sessions
-
-**Development Tools:**
-
-- `convert_to_branch/` - Git branch name generation
-- `run_file/` - Smart file execution
-- `file_size/` - File size calculation
-- `regex_test/` - Regular expression testing
-
-### Adding New Modules
-
-1. Create directory: `src/modules/your_module/`
-2. Create `mod.rs` with a struct implementing `ToolModule`
-3. Build - your module is automatically discovered and registered!
+### Adding a Module
 
 ```rust
-// src/modules/your_module/mod.rs
+// src/modules/my_tool/mod.rs
+use crate::error::MsResult;
 use crate::tool_module::ToolModule;
-use clap::{Arg, ArgMatches, Command};
-use std::error::Error;
+use clap::{ArgMatches, Command};
 
-pub struct YourModule;
+pub struct MyToolModule;
 
-impl ToolModule for YourModule {
-    fn name(&self) -> &'static str { "your-module" }
+impl ToolModule for MyToolModule {
+    fn name(&self) -> &'static str { "my-tool" }
 
-    fn configure_args(&self, cmd: Command) -> Command {
-        cmd.arg(Arg::new("your-flag").short('y').long("your-flag"))
+    fn command(&self) -> Command {
+        Command::new("my-tool")
+            .about("Does something useful")
     }
 
-    fn execute(&self, matches: &ArgMatches) -> Result<(), Box<dyn Error>> {
-        // Your implementation
+    fn execute(&self, matches: &ArgMatches) -> MsResult<()> {
+        // implementation
         Ok(())
     }
 }
 ```
 
-## ✨ Key Features
+Build. Done. It's discovered automatically.
 
-- **🔒 Secure**: Cryptographically secure password generation and hashing
-- **📋 Clipboard Integration**: Most commands automatically copy results to clipboard
-- **🎨 Rich Text Processing**: Multiple case formats, encoding/decoding, formatting
-- **🌐 Web Development**: URL parsing, color conversion, JSON formatting
-- **📅 Date Utilities**: Date arithmetic with multiple format support
-- **🗄️ Database Connectivity**: Interactive PostgreSQL sessions with CSV output
-- **🧰 Developer Tools**: File execution, regex testing, branch naming
-- **⚡ Performance**: Optimized Rust binary with minimal startup time
-- **🔧 Modular**: Self-expanding architecture with automatic module discovery
-
-## 🧪 Development
+## Development
 
 ```bash
-# Run tests for all modules
-cargo test
-
-# Run in development mode
-cargo run -- --help
-cargo run -- -g "test string"
-cargo run -- --password 12
-cargo run -- --hash "test text"
-
-# Build optimized binary
-cargo build --release
-
-# Install locally for testing
-cargo install --path .
+cargo test --all-features             # 160 tests (127 unit + 33 integration)
+cargo clippy --all-features -- -D warnings
+cargo fmt
+cargo build --release --all-features
 ```
-
-## 📦 Dependencies
-
-Key dependencies used by MicroSwiss:
-
-- **clap** - Command-line argument parsing
-- **arboard** - Clipboard integration
-- **colored** - Terminal color output
-- **chrono** - Date and time handling
-- **serde/serde_json** - JSON serialization
-- **regex** - Regular expression support
-- **uuid** - UUID generation
-- **md5/sha2** - Cryptographic hashing
-- **qrcode** - QR code generation
-- **rand** - Cryptographically secure random numbers
-- **tokio-postgres** - Async PostgreSQL client
-- **tokio** - Async runtime
-- **url** - URL parsing and validation
-- **csv** - CSV formatting and parsing

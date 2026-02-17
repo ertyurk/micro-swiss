@@ -1,8 +1,11 @@
 use clap::Command;
+use clap_complete::{generate, Shell};
 use std::process;
 
+mod error;
 mod module_registry;
 mod tool_module;
+mod util;
 
 // Include auto-generated modules
 include!(concat!(env!("OUT_DIR"), "/modules.rs"));
@@ -12,61 +15,69 @@ use module_registry::get_module_registry;
 fn main() {
     let registry = get_module_registry();
 
-    let mut cmd = Command::new("micro-swiss")
-        .version("0.1.0")
+    let mut cmd = Command::new("ms")
+        .version(env!("CARGO_PKG_VERSION"))
         .about("A collection of utility tools for developers")
-        .after_help("For more information about each command, use --help with the specific option.")
-        .after_long_help(
-            "EXAMPLES:
-    # Base64 encoding/decoding
-    micro-swiss --encode \"Hello World\"
-    micro-swiss --decode \"SGVsbG8gV29ybGQ=\"
-
-    # URL encoding/decoding
-    micro-swiss --url-encode \"hello world & test\"
-    micro-swiss --url-decode \"hello+world+%26+test\"
-
-    # Password generation
-    micro-swiss --password 12        # Generate 12-char password
-    micro-swiss -p                   # Generate 16-char password (default)
-
-    # Git branch name conversion
-    micro-swiss --generate-branch \"Fix: urgent bug with user data\"
-
-    # Text flattening (remove newlines)
-    micro-swiss --flatten \"line1\\nline2\\nline3\"
-    echo -e \"line1\\nline2\" | micro-swiss --flatten
-
-    # Run files by extension
-    micro-swiss --run script.py
-    micro-swiss --run main.go"
-        );
+        .subcommand_required(true)
+        .arg_required_else_help(true);
 
     for module in registry.get_modules() {
-        cmd = module.configure_args(cmd);
+        cmd = cmd.subcommand(module.command());
     }
 
-    let matches = cmd.get_matches();
+    // Hidden completions subcommand
+    cmd = cmd.subcommand(
+        Command::new("completions")
+            .about("Generate shell completions")
+            .hide(true)
+            .arg(
+                clap::Arg::new("shell")
+                    .required(true)
+                    .value_parser(clap::value_parser!(Shell)),
+            ),
+    );
 
-    let mut executed = false;
-    for module in registry.get_modules() {
-        if let Err(e) = module.execute(&matches) {
-            eprintln!("Error executing module {}: {}", module.name(), e);
-            process::exit(1);
+    // Hidden manpage subcommand
+    cmd = cmd.subcommand(
+        Command::new("manpage")
+            .about("Generate man page")
+            .hide(true),
+    );
+
+    let matches = cmd.clone().get_matches();
+
+    match matches.subcommand() {
+        Some(("completions", sub_m)) => {
+            let shell = sub_m.get_one::<Shell>("shell").unwrap();
+            generate(*shell, &mut cmd, "ms", &mut std::io::stdout());
         }
-
-        // Check if any command was executed using auto-discovered command IDs
-        let command_ids = module_registry::get_all_command_ids();
-        for &cmd_id in &command_ids {
-            if matches.contains_id(cmd_id) {
-                executed = true;
-                break;
+        Some(("manpage", _)) => {
+            let man = clap_mangen::Man::new(cmd);
+            let mut buf = Vec::new();
+            if let Err(e) = man.render(&mut buf) {
+                eprintln!("Error generating man page: {}", e);
+                process::exit(1);
+            }
+            if let Err(e) = std::io::Write::write_all(&mut std::io::stdout(), &buf) {
+                eprintln!("Error writing man page: {}", e);
+                process::exit(1);
             }
         }
-    }
-
-    if !executed {
-        // eprintln!("Please specify a command. Use --help for usage information.");
-        process::exit(1);
+        Some((name, sub_m)) => {
+            for module in registry.get_modules() {
+                if module.name() == name {
+                    if let Err(e) = module.execute(sub_m) {
+                        eprintln!("Error: {}", e);
+                        process::exit(1);
+                    }
+                    return;
+                }
+            }
+            eprintln!("Unknown command: {}", name);
+            process::exit(1);
+        }
+        None => {
+            process::exit(1);
+        }
     }
 }

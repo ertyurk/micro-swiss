@@ -1,53 +1,54 @@
+use crate::error::MsResult;
 use crate::tool_module::ToolModule;
+use crate::util::stdin;
 use clap::{Arg, ArgMatches, Command};
 use regex::Regex;
-use std::error::Error;
 
 pub struct RegexTestModule;
 
 impl ToolModule for RegexTestModule {
     fn name(&self) -> &'static str {
-        "regex-test"
+        "regex"
     }
 
-    fn configure_args(&self, cmd: Command) -> Command {
-        cmd.arg(
-            Arg::new("regex-test")
-                .long("regex-test")
-                .value_names(["PATTERN", "TEXT"])
-                .num_args(2)
-                .help("Test regex pattern against text")
-                .long_help("Test a regular expression pattern against the given text and show matches with positions.")
-        )
+    fn command(&self) -> Command {
+        Command::new("regex")
+            .about("Test regex pattern against text")
+            .arg(
+                Arg::new("pattern")
+                    .required(true)
+                    .help("Regular expression pattern"),
+            )
+            .arg(Arg::new("text").value_name("TEXT").help("Text to test against"))
     }
 
-    fn execute(&self, matches: &ArgMatches) -> Result<(), Box<dyn Error>> {
-        if let Some(values) = matches.get_many::<String>("regex-test") {
-            let values: Vec<&String> = values.collect();
-            if values.len() == 2 {
-                let pattern = values[0];
-                let text = values[1];
-                test_regex(pattern, text)?;
-            }
-        }
+    fn execute(&self, matches: &ArgMatches) -> MsResult<()> {
+        let pattern = matches.get_one::<String>("pattern").unwrap();
+        let text = stdin::get_text_input(matches.get_one::<String>("text"))
+            .unwrap_or_default();
+        test_regex(pattern, &text)?;
         Ok(())
     }
 }
 
-fn test_regex(pattern: &str, text: &str) -> Result<(), Box<dyn Error>> {
+fn test_regex(pattern: &str, text: &str) -> MsResult<()> {
     let regex = Regex::new(pattern)?;
     let matches: Vec<_> = regex.find_iter(text).collect();
-    
+
     if matches.is_empty() {
         println!("No matches found");
     } else {
         println!("Found {} match(es):", matches.len());
         for (i, m) in matches.iter().enumerate() {
-            println!("  Match {}: '{}' at position {}-{}", 
-                i + 1, m.as_str(), m.start(), m.end());
+            println!(
+                "  Match {}: '{}' at position {}-{}",
+                i + 1,
+                m.as_str(),
+                m.start(),
+                m.end()
+            );
         }
-        
-        // Show captures if any
+
         if let Some(caps) = regex.captures(text) {
             if caps.len() > 1 {
                 println!("\nCapture groups:");
@@ -59,7 +60,7 @@ fn test_regex(pattern: &str, text: &str) -> Result<(), Box<dyn Error>> {
             }
         }
     }
-    
+
     Ok(())
 }
 
@@ -69,25 +70,21 @@ mod tests {
 
     #[test]
     fn test_simple_match() {
-        let result = test_regex("hello", "hello world");
-        assert!(result.is_ok());
+        assert!(test_regex("hello", "hello world").is_ok());
     }
 
     #[test]
     fn test_no_match() {
-        let result = test_regex("xyz", "hello world");
-        assert!(result.is_ok());
+        assert!(test_regex("xyz", "hello world").is_ok());
     }
 
     #[test]
     fn test_invalid_regex() {
-        let result = test_regex("[", "hello");
-        assert!(result.is_err());
+        assert!(test_regex("[", "hello").is_err());
     }
 
     #[test]
     fn test_regex_with_groups() {
-        let result = test_regex(r"(\w+)@(\w+\.\w+)", "test@example.com");
-        assert!(result.is_ok());
+        assert!(test_regex(r"(\w+)@(\w+\.\w+)", "test@example.com").is_ok());
     }
 }
